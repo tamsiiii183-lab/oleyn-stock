@@ -44,7 +44,10 @@ export default function Products() {
     <div className="space-y-3">
       <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('search')}
         className="min-h-[48px] w-full rounded-xl border border-cloud bg-white px-3 focus:outline-none focus:ring-2 focus:ring-brand-light" />
-      {isOwner && <Button variant="secondary" onClick={() => setAdding(true)}>+ {t('add_product')}</Button>}
+      <div className="flex gap-2">
+        {isOwner && <Button variant="secondary" onClick={() => setAdding(true)}>+ {t('add_product')}</Button>}
+        <Link to="/godowns" className="flex min-h-[48px] w-full items-center justify-center rounded-xl border-2 border-brand bg-white font-semibold text-brand">🏬 {t('stock_by_location')}</Link>
+      </div>
       {rows === null && <p className="text-slate">{t('loading')}</p>}
       {rows && list.length === 0 && <p className="text-slate">{t('no_results')}</p>}
       <ul className="divide-y divide-cloud rounded-xl border border-cloud bg-white">

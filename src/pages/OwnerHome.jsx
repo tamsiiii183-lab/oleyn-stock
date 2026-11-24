@@ -27,13 +27,15 @@ export default function OwnerHome() {
       supabase.from('customer_balances').select('due, is_overdue'),
       supabase.from('product_stock').select('product_id, current_stock, is_low, is_negative').or('is_low.eq.true,is_negative.eq.true'),
       supabase.from('products').select('id, name, name_bn, unit'),
-    ]).then(([sales, profit, dues, stock, products]) => {
+      supabase.from('purchase_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    ]).then(([sales, profit, dues, stock, products, reqs]) => {
       const byId = Object.fromEntries((products.data || []).map((p) => [p.id, p]));
       setD({
         sales: (sales.data || []).reduce((s, r) => s + Number(r.total), 0),
         profit: (profit.data || []).reduce((s, r) => s + Number(r.profit), 0),
         due: (dues.data || []).reduce((s, r) => s + Math.max(Number(r.due), 0), 0),
         overdue: (dues.data || []).filter((r) => r.is_overdue).length,
+        pending: reqs.count || 0,
         alerts: (stock.data || []).map((s) => ({ ...s, product: byId[s.product_id] }))
           .sort((a, b) => Number(a.current_stock) - Number(b.current_stock)),
       });
@@ -43,6 +45,9 @@ export default function OwnerHome() {
   if (!d) return <p className="mt-6 text-center text-slate">{t('loading')}</p>;
   return (
     <div className="space-y-4">
+      {d.pending > 0 && (
+        <Link to="/purchase/new" className="block rounded-xl bg-accent-tint p-3 font-semibold text-accent-ink">📥 {t('pending_receipts', { n: num(d.pending, lang) })} ›</Link>
+      )}
       <div className="grid grid-cols-2 gap-3">
         <Stat label={t('todays_sales')} value={money(d.sales, lang)} to="/" />
         <Stat label={t('todays_profit')} value={money(d.profit, lang)} to="/" />
@@ -70,14 +75,11 @@ export default function OwnerHome() {
       </Card>
       <h2 className="font-semibold text-brand-dark">{t('modules')}</h2>
       <div className="grid grid-cols-3 gap-3">
-        {[['/products', 'inventory', '📦'], ['/hr', 'hr', '👥'], ['/payroll', 'payroll', '💵'], ['/accounts', 'accounts', '📒'], ['/production', 'production', '🏭']].map(([to, key, icon]) => (
+        {[['/products', 'inventory', '📦'], ['/hr', 'hr', '👥'], ['/payroll', 'payroll', '💵'], ['/accounts', 'accounts', '📒'], ['/production', 'production', '🏭'], ['/godowns', 'godowns', '🏬']].map(([to, key, icon]) => (
           <Link key={key} to={to} className="flex min-h-[88px] flex-col items-center justify-center rounded-xl border border-cloud bg-white p-2 text-center text-sm font-semibold">
             <span className="text-2xl" aria-hidden="true">{icon}</span>{t(key)}
           </Link>
         ))}
-        <Link to="/soon/multi_godown" className="flex min-h-[88px] flex-col items-center justify-center rounded-xl border border-dashed border-cloud bg-white p-2 text-center text-sm">
-          <span className="font-semibold">{t('multi_godown')}</span><span className="mt-1 text-xs text-slate">{t('coming_soon')}</span>
-        </Link>
       </div>
     </div>
   );

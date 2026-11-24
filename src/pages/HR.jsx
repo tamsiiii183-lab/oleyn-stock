@@ -8,6 +8,8 @@ import { money } from '../lib/format.js';
 import { useToast } from '../components/Toast.jsx';
 import Button from '../components/Button.jsx';
 import Card from '../components/Card.jsx';
+import { incrementInfo } from '../components/IncrementCard.jsx';
+import { num } from '../lib/format.js';
 
 export const inputCls = 'mt-1 min-h-[48px] w-full rounded-xl border border-cloud bg-white px-3 focus:outline-none focus:ring-2 focus:ring-brand-light';
 
@@ -50,7 +52,18 @@ export default function HR() {
   const toast = useToast();
   const [rows, setRows] = useState(null);
   const [adding, setAdding] = useState(false);
-  const load = () => supabase.from('employees').select('*').eq('is_active', true).order('factory').order('full_name').then((r) => setRows(r.data || []));
+  const load = async () => {
+    const [e, r, l] = await Promise.all([
+      supabase.from('employees').select('*').eq('is_active', true).order('factory').order('full_name'),
+      supabase.from('salary_revisions').select('employee_id, effective_month'),
+      supabase.from('leave_balances').select('employee_id, days_left'),
+    ]);
+    setRows((e.data || []).map((x) => ({
+      ...x,
+      inc: incrementInfo(x, (r.data || []).filter((y) => y.employee_id === x.id)),
+      leaveLeft: (l.data || []).filter((y) => y.employee_id === x.id).reduce((s, y) => s + Number(y.days_left), 0),
+    })));
+  };
   useEffect(() => { load(); }, []);
 
   if (adding) return <AddEmployee onDone={(saved) => { setAdding(false); if (saved) { toast(t('employee_saved')); load(); } }} />;
@@ -74,7 +87,11 @@ export default function HR() {
             {list.map((e) => (
               <li key={e.id}>
                 <Link to={`/hr/${e.id}`} className="flex min-h-[56px] items-center justify-between px-4">
-                  <span><span className="block font-semibold">{e.full_name}</span><span className="text-xs text-slate">{e.designation}</span></span>
+                  <span>
+                    <span className="block font-semibold">{e.full_name}</span>
+                    <span className="text-xs text-slate">{e.designation} · {t(e.employee_type === 'worker' ? 'worker' : 'staff')} · {t('leave_left_short')} {num(e.leaveLeft, lang)}</span>
+                    {e.inc.due && <span className="mt-0.5 block w-fit rounded-full bg-accent px-2 text-xs font-semibold text-ink">✓ {t('increment_due')}</span>}
+                  </span>
                   <span className="font-semibold">{money(e.monthly_salary, lang)}</span>
                 </Link>
               </li>

@@ -1,7 +1,10 @@
-// New purchase (/purchase/new, Owner): "Scan memo with AI" or "Enter by hand". If the AI fails or takes over 20 s,
+// New purchase (/purchase/new): "Scan memo with AI" or "Enter by hand". Owner: saves purchases and sees the requests
+// waiting for approval. Salesperson: the same screens without prices, ending in "Send to Owner for approval". If the AI fails or takes over 20 s,
 // the same purchase form opens empty with the photo shown, so the Owner can always finish by hand (spec 8.7).
-import { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../lib/auth.jsx';
+import { dateTime } from '../lib/format.js';
 import { supabase } from '../lib/supabase.js';
 import { useI18n } from '../lib/i18n.js';
 import { shrinkImage } from '../lib/image.js';
@@ -21,6 +24,13 @@ export default function NewPurchase() {
   const fileInput = useRef(null);
   const [mode, setMode] = useState('choose');
   const [photo, setPhoto] = useState(null);
+  const { role } = useAuth();
+  const isOwner = role === 'owner';
+  const [pending, setPending] = useState([]);
+  useEffect(() => {
+    supabase.from('purchase_requests').select('id, request_no, supplier_name, lines, created_at, status').eq('status', 'pending')
+      .order('created_at').then((r) => setPending(isOwner ? r.data || [] : []));
+  }, [isOwner]);
 
   async function onPhoto(e) {
     const file = e.target.files?.[0];
@@ -53,17 +63,31 @@ export default function NewPurchase() {
       const reason = err?.name === 'AbortError' ? 'timeout' : ['timeout', 'invalid_json', 'rate_limit'].includes(err?.message) ? err.message : 'error';
       track('ai_fallback_used', { reason });
       toast(t('ai_failed'), 'error');
-      clearDraft('purchase');
+      clearDraft(isOwner ? 'purchase' : 'request');
       setMode('manual');
     } finally {
       e.target.value = '';
     }
   }
 
-  if (mode === 'manual') return <PurchaseForm draftKey="purchase" initial={EMPTY} photo={photo} source="manual" />;
+  if (mode === 'manual') return <PurchaseForm draftKey={isOwner ? 'purchase' : 'request'} initial={EMPTY} photo={photo} source="manual" mode={isOwner ? 'purchase' : 'request'} />;
   return (
     <Card className="space-y-4">
-      <h1 className="text-xl font-bold text-brand-dark">{t('new_purchase')}</h1>
+      <h1 className="text-xl font-bold text-brand-dark">{t(isOwner ? 'new_purchase' : 'receive_stock')}</h1>
+      {!isOwner && <p className="text-sm text-slate">🔒 {t('costs_hidden')}</p>}
+      {pending.length > 0 && (
+        <div className="rounded-xl bg-accent-tint p-3">
+          <h2 className="font-semibold text-accent-ink">{t('waiting_approval')}</h2>
+          <ul className="divide-y divide-cloud">
+            {pending.map((p) => (
+              <li key={p.id}><Link to={`/purchase/request/${p.id}`} className="flex min-h-[48px] items-center justify-between">
+                <span><b>{p.request_no}</b> · {p.supplier_name || '—'}<span className="block text-xs text-slate">{dateTime(p.created_at)} · {p.lines.length} {t('items')}</span></span>
+                <span aria-hidden="true">›</span>
+              </Link></li>
+            ))}
+          </ul>
+        </div>
+      )}
       {mode === 'reading' ? (
         <div className="space-y-3 text-center">
           {photo && <img src={photo} alt={t('memo_photo')} className="max-h-64 w-full rounded-xl object-contain" />}

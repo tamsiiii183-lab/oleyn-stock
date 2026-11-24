@@ -15,7 +15,7 @@ export default function More() {
     ['/payroll', t('payroll')],
     ['/accounts', t('accounts')],
     ['/production', t('production')],
-    ['/soon/multi_godown', `${t('multi_godown')} · ${t('coming_soon')}`],
+    ['/godowns', t('godowns')],
     ['/api-info', t('api_info')],
   ];
   return (

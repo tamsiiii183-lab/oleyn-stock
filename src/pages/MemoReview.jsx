@@ -2,12 +2,14 @@
 // Owner fixes any orange "Check this" fields, ticks "I checked this memo" and taps Save.
 import { useParams, Link } from 'react-router-dom';
 import { useI18n } from '../lib/i18n.js';
+import { useAuth } from '../lib/auth.jsx';
 import PurchaseForm from '../components/PurchaseForm.jsx';
 import Card from '../components/Card.jsx';
 
 export default function MemoReview() {
   const { extractionId } = useParams();
   const { t } = useI18n();
+  const { role } = useAuth();
   let saved = null;
   try { saved = JSON.parse(sessionStorage.getItem(`oleyn_ai_${extractionId}`)); } catch { /* missing */ }
   if (!saved) {
@@ -19,12 +21,12 @@ export default function MemoReview() {
     supplier_name: result.supplier_name || '',
     lines: result.lines.map((l, i) => ({
       product_id: l.product_id || '', qty: l.qty ?? '', unit_cost: l.unit_cost ?? '', item_name: l.item_name, unit: l.unit,
-      confidence: Number(l.confidence || 0), warn: warnings.some((w) => w.startsWith(`Line ${i + 1}:`)),
+      ai_index: i, confidence: Number(l.confidence || 0), warn: warnings.some((w) => w.startsWith(`Line ${i + 1}:`)),
     })),
   };
   return (
     <PurchaseForm draftKey={`review_${extractionId}`} initial={initial} photo={photo} source="ai"
-      extractionId={extractionId} warnings={warnings}
+      extractionId={extractionId} warnings={warnings} mode={role === 'owner' ? 'purchase' : 'request'}
       onSaved={() => sessionStorage.removeItem(`oleyn_ai_${extractionId}`)} />
   );
 }

@@ -22,17 +22,21 @@ export default function ProductDetail() {
   const [editing, setEditing] = useState(false);
 
   async function load() {
-    const [p, m, names, c] = await Promise.all([
+    const [p, m, names, c, gs, gd] = await Promise.all([
       supabase.from('products').select('*').eq('id', id).single(),
       supabase.from('stock_movements').select('id, qty_change, reason, source_type, source_id, note, oversell_override, created_by, created_at')
         .eq('product_id', id).order('created_at').order('id'),
       supabase.rpc('staff_names'),
       isOwner ? supabase.from('product_costs').select('cost_price').eq('product_id', id).maybeSingle() : Promise.resolve({ data: null }),
+      supabase.from('godown_stock').select('godown_id, qty').eq('product_id', id),
+      supabase.from('godowns').select('id, name, name_bn'),
     ]);
     const who = Object.fromEntries((names.data || []).map((n) => [n.id, n.full_name]));
     let running = 0;
     const history = (m.data || []).map((r) => ({ ...r, who: who[r.created_by] || '—', balance: (running += Number(r.qty_change)) }));
-    setD({ product: p.data, cost: c.data ? Number(c.data.cost_price) : null, history: history.reverse(), stock: running });
+    const gname = Object.fromEntries((gd.data || []).map((g) => [g.id, g]));
+    setD({ product: p.data, cost: c.data ? Number(c.data.cost_price) : null, history: history.reverse(), stock: running,
+      places: (gs.data || []).filter((x) => Number(x.qty) !== 0).map((x) => ({ ...x, g: gname[x.godown_id] })) });
   }
   useEffect(() => { load(); }, [id, isOwner]);
 
@@ -62,6 +66,15 @@ export default function ProductDetail() {
             {isOwner && d.cost != null && <div>{t('cost_price')} <b>{money(d.cost, lang)}</b></div>}
           </div>
         </div>
+        {d.places.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {d.places.map((x) => (
+              <Link key={x.godown_id} to="/godowns" className="rounded-full bg-brand-tint px-3 py-1 text-xs font-semibold text-brand">
+                🏬 {lang === 'bn' && x.g?.name_bn ? x.g.name_bn : x.g?.name}: {num(x.qty, lang)}
+              </Link>
+            ))}
+          </div>
+        )}
       </Card>
       {isOwner && (
         <div className="grid grid-cols-2 gap-3">

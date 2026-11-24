@@ -1,4 +1,4 @@
-// One employee (/hr/:id, Owner): details, Give raise (with reason, kept in salary history) and salary advances.
+// One employee (/hr/:id, Owner): details, increment due, Give raise (kept in salary history), leave, overtime, bonuses, advances.
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
@@ -9,6 +9,9 @@ import { useToast } from '../components/Toast.jsx';
 import { inputCls } from './HR.jsx';
 import Button from '../components/Button.jsx';
 import Card from '../components/Card.jsx';
+import LeavePanel from '../components/LeavePanel.jsx';
+import IncrementCard from '../components/IncrementCard.jsx';
+import { num } from '../lib/format.js';
 
 export default function Employee() {
   const { id } = useParams();
@@ -20,12 +23,14 @@ export default function Employee() {
   const [error, setError] = useState('');
 
   async function load() {
-    const [e, r, a] = await Promise.all([
+    const [e, r, a, ot, bo] = await Promise.all([
       supabase.from('employees').select('*').eq('id', id).maybeSingle(),
       supabase.from('salary_revisions').select('*').eq('employee_id', id).order('created_at', { ascending: false }),
       supabase.from('salary_advances').select('*').eq('employee_id', id).order('given_on', { ascending: false }),
+      supabase.from('overtime').select('month, hours').eq('employee_id', id).order('month', { ascending: false }).limit(3),
+      supabase.from('bonuses').select('month, kind, amount').eq('employee_id', id).order('month', { ascending: false }),
     ]);
-    setD({ emp: e.data, raises: r.data || [], advances: a.data || [] });
+    setD({ emp: e.data, raises: r.data || [], advances: a.data || [], overtime: ot.data || [], bonuses: bo.data || [] });
   }
   useEffect(() => { load(); }, [id]);
 
@@ -53,10 +58,12 @@ export default function Employee() {
       <Card>
         <h1 className="text-xl font-bold text-brand-dark">{e.full_name}</h1>
         <p className="text-sm text-slate">{[e.designation, e.factory, e.phone].filter(Boolean).join(' · ')}</p>
+        <span className="mt-1 inline-block rounded-full bg-brand-tint px-2 py-0.5 text-xs font-semibold text-brand">{t(e.employee_type === 'worker' ? 'worker' : 'staff')}</span>
         <div className="mt-2 text-sm text-slate">{t('monthly_salary')}</div>
         <div className="text-2xl font-bold text-brand-dark">{money(e.monthly_salary, lang)}</div>
       </Card>
       {error && <p role="alert" className="rounded-xl bg-accent-tint p-3 font-semibold text-accent-ink">⚠ {error}</p>}
+      <IncrementCard emp={e} raises={d.raises} onApplied={() => { toast(t('raise_saved')); load(); }} />
       <Card>
         <form onSubmit={giveRaise} className="space-y-2">
           <h2 className="font-semibold text-brand-dark">{t('give_raise')}</h2>
@@ -76,6 +83,18 @@ export default function Employee() {
           ))}
           {d.raises.length === 0 && <li className="py-2 text-slate">{t('no_results')}</li>}
         </ul>
+      </Card>
+      <LeavePanel employeeId={id} />
+      <Card className="space-y-1 text-sm">
+        {e.employee_type === 'worker' && (<>
+          <h2 className="font-semibold text-brand-dark">{t('overtime')}</h2>
+          {d.overtime.map((o) => <div key={o.month} className="flex justify-between"><span>{o.month.slice(0, 7)}</span><b>{num(o.hours, lang)} h</b></div>)}
+          {d.overtime.length === 0 && <p className="text-slate">{t('no_results')}</p>}
+          <p className="text-xs text-slate">{t('ot_rule')}</p>
+        </>)}
+        <h2 className="pt-2 font-semibold text-brand-dark">{t('bonuses')}</h2>
+        {d.bonuses.map((b) => <div key={b.month + b.kind} className="flex justify-between"><span>{t(`bonus_${b.kind}`)} · {b.month.slice(0, 7)}</span><b>{money(b.amount, lang)}</b></div>)}
+        {d.bonuses.length === 0 && <p className="text-slate">{t('no_results')}</p>}
       </Card>
       <Card>
         <form onSubmit={giveAdvance} className="space-y-2">
