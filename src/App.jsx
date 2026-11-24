@@ -12,6 +12,9 @@ import SalesHome from './pages/SalesHome.jsx';
 import More from './pages/More.jsx';
 import Soon from './pages/Soon.jsx';
 import InProgress from './pages/InProgress.jsx';
+import Products from './pages/Products.jsx';
+import ProductDetail from './pages/ProductDetail.jsx';
+import AdjustStock from './pages/AdjustStock.jsx';
 
 function Layout() {
   const { session, profile, loading } = useAuth();
@@ -48,12 +51,12 @@ export default function App() {
         <Route path="/customers" element={<InProgress title={t('customers')} />} />
         <Route path="/customers/:id" element={<InProgress title={t('customers')} />} />
         <Route path="/pay" element={<InProgress title={t('record_payment')} />} />
-        <Route path="/products" element={<InProgress title={t('products')} />} />
-        <Route path="/products/:id" element={<InProgress title={t('stock_history')} />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/products/:id" element={<ProductDetail />} />
         <Route path="/invoices/:id" element={<InProgress title={t('sell')} />} />
         <Route path="/purchase/new" element={ownerOnly(<InProgress title={t('new_purchase')} />)} />
         <Route path="/purchase/review/:extractionId" element={ownerOnly(<InProgress title={t('scan_memo')} />)} />
-        <Route path="/adjust" element={ownerOnly(<InProgress title={t('adjust_stock')} />)} />
+        <Route path="/adjust" element={ownerOnly(<AdjustStock />)} />
         <Route path="/payroll" element={ownerOnly(<InProgress title={t('payroll')} />)} />
         <Route path="/api-info" element={ownerOnly(<InProgress title={t('api_info')} />)} />
         <Route path="/more" element={ownerOnly(<More />)} />
