@@ -11,9 +11,10 @@ export default function More() {
   const links = [
     ['/purchase/new', t('new_purchase')],
     ['/adjust', t('adjust_stock')],
+    ['/hr', t('hr')],
     ['/payroll', t('payroll')],
-    ['/soon/accounting', `${t('accounting')} · ${t('coming_soon')}`],
-    ['/soon/manufacturing', `${t('manufacturing')} · ${t('coming_soon')}`],
+    ['/accounts', t('accounts')],
+    ['/production', t('production')],
     ['/soon/multi_godown', `${t('multi_godown')} · ${t('coming_soon')}`],
     ['/api-info', t('api_info')],
   ];

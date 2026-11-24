@@ -8,6 +8,7 @@ import { localName } from '../lib/format.js';
 import { useToast } from '../components/Toast.jsx';
 import Button from '../components/Button.jsx';
 import Card from '../components/Card.jsx';
+import { track } from '../lib/analytics.js';
 
 const REASONS = ['adjust_damage', 'adjust_expired', 'adjust_lost', 'adjust_sample', 'adjust_count'];
 
@@ -39,6 +40,7 @@ export default function AdjustStock() {
     });
     setBusy(false);
     if (err) { setError(errorText(t, err)); return; }
+    track('stock_adjusted', { reason });
     toast(t('adjustment_saved'));
     navigate(`/products/${productId}`);
   }

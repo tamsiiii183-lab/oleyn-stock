@@ -8,6 +8,7 @@ import { money, localName } from '../lib/format.js';
 import { loadDraft, saveDraft, clearDraft, isNetworkError, round2 } from '../lib/drafts.js';
 import { loadCustomers } from './Customers.jsx';
 import { useToast } from '../components/Toast.jsx';
+import { track } from '../lib/analytics.js';
 import Banner from '../components/Banner.jsx';
 import Button from '../components/Button.jsx';
 import Card from '../components/Card.jsx';
@@ -46,6 +47,7 @@ export default function RecordPayment() {
     });
     setBusy(false);
     if (err) { if (isNetworkError(err)) setNetFail(true); else setError(errorText(t, err)); return; }
+    if (!data.duplicate) track('payment_recorded', { method: draft.method, amount_bdt: amount });
     clearDraft('payment');
     setDraft(loadDraft('payment', EMPTY));
     toast(`${t('payment_saved')} ${t('due')} ${money(data.new_due, lang)}`);

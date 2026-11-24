@@ -10,6 +10,7 @@ import { useToast } from '../components/Toast.jsx';
 import PurchaseForm from '../components/PurchaseForm.jsx';
 import Button from '../components/Button.jsx';
 import Card from '../components/Card.jsx';
+import { track } from '../lib/analytics.js';
 
 const EMPTY = { supplier_name: '', lines: [{ product_id: '', qty: '', unit_cost: '' }] };
 
@@ -40,11 +41,17 @@ export default function NewPurchase() {
       clearTimeout(timer);
       const body = await r.json().catch(() => ({}));
       if (!r.ok || !body.extraction_id || !Array.isArray(body.lines)) throw new Error(body.reason || `http_${r.status}`);
+      track('ai_memo_extracted', {
+        latency_ms: body.latency_ms, lines: body.lines.length,
+        low_confidence_fields: body.lines.filter((l) => Number(l.confidence) < 0.8 || !l.product_id).length,
+      });
       sessionStorage.setItem(`oleyn_ai_${body.extraction_id}`, JSON.stringify({ result: body, photo: img.dataUrl }));
       navigate(`/purchase/review/${body.extraction_id}`);
     } catch (err) {
       // Fallback: same form, empty, with the photo beside it.
       console.warn('AI memo fallback:', err?.name === 'AbortError' ? 'timeout' : err?.message);
+      const reason = err?.name === 'AbortError' ? 'timeout' : ['timeout', 'invalid_json', 'rate_limit'].includes(err?.message) ? err.message : 'error';
+      track('ai_fallback_used', { reason });
       toast(t('ai_failed'), 'error');
       clearDraft('purchase');
       setMode('manual');

@@ -68,13 +68,16 @@ export default function OwnerHome() {
           ))}
         </ul>
       </Card>
+      <h2 className="font-semibold text-brand-dark">{t('modules')}</h2>
       <div className="grid grid-cols-3 gap-3">
-        {['accounting', 'manufacturing', 'multi_godown'].map((m) => (
-          <Link key={m} to={`/soon/${m}`} className="rounded-xl border border-dashed border-cloud bg-white p-3 text-center text-sm">
-            <div className="font-semibold">{t(m)}</div>
-            <div className="mt-1 text-xs text-slate">{t('coming_soon')}</div>
+        {[['/products', 'inventory', '📦'], ['/hr', 'hr', '👥'], ['/payroll', 'payroll', '💵'], ['/accounts', 'accounts', '📒'], ['/production', 'production', '🏭']].map(([to, key, icon]) => (
+          <Link key={key} to={to} className="flex min-h-[88px] flex-col items-center justify-center rounded-xl border border-cloud bg-white p-2 text-center text-sm font-semibold">
+            <span className="text-2xl" aria-hidden="true">{icon}</span>{t(key)}
           </Link>
         ))}
+        <Link to="/soon/multi_godown" className="flex min-h-[88px] flex-col items-center justify-center rounded-xl border border-dashed border-cloud bg-white p-2 text-center text-sm">
+          <span className="font-semibold">{t('multi_godown')}</span><span className="mt-1 text-xs text-slate">{t('coming_soon')}</span>
+        </Link>
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import { loadDraft, saveDraft, clearDraft, isNetworkError, round2 } from '../lib
 import { loadProducts } from './Products.jsx';
 import { loadCustomers } from './Customers.jsx';
 import { useToast } from '../components/Toast.jsx';
+import { track } from '../lib/analytics.js';
 import ProductPicker from '../components/ProductPicker.jsx';
 import SaleLines from '../components/SaleLines.jsx';
 import Banner from '../components/Banner.jsx';
@@ -74,6 +75,12 @@ export default function NewSale() {
       if (isNetworkError(err)) setNetFail(true);
       else setError(errorText(t, err, { productName: localName(products.find((p) => p.sku === String(err.message).split(':')[1]), lang) }));
       return;
+    }
+    if (!data.duplicate) {
+      track('invoice_saved', {
+        payment_type: paid >= total ? 'cash' : paid === 0 ? 'credit' : 'partial', lines: draft.lines.length, total_bdt: total,
+        is_first_real_invoice: Boolean(data.is_first_real_invoice), oversell_override: Boolean(data.oversell_override), used_barcode: Boolean(draft.used_barcode),
+      });
     }
     clearDraft('sale');
     setDraft(loadDraft('sale', EMPTY));
