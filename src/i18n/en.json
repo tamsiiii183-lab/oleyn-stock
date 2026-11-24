@@ -247,5 +247,20 @@
   "api_title": "Public stock API",
   "api_desc": "Other systems (for example a partner's ERP) can read a product's current stock. Cost and profit are never shared.",
   "api_key_note": "Demo key for evaluators (only its SHA-256 hash is stored in the database):",
-  "try_it": "Try it"
+  "try_it": "Try it",
+  "receive_stock": "Receive stock (scan memo)",
+  "send_to_owner": "Send to Owner for approval",
+  "request_sent": "Sent to the Owner for approval.",
+  "waiting_approval": "Waiting for your approval",
+  "approve_add_stock": "Approve and add stock",
+  "reject": "Reject",
+  "request_rejected": "Request rejected.",
+  "my_requests": "My stock requests",
+  "status_pending": "Waiting",
+  "status_approved": "Approved",
+  "status_rejected": "Rejected",
+  "sent_by": "Sent by",
+  "pending_receipts": "{n} stock receipt(s) waiting for your approval",
+  "costs_hidden": "Prices are hidden. The Owner adds costs when approving.",
+  "reject_reason": "Reason for rejecting"
 }
