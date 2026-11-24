@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from './supabase.js';
 import { useI18n } from './i18n.js';
+import { identifyUser, resetAnalytics, track } from './analytics.js';
 
 const AuthContext = createContext(null);
 
@@ -15,10 +16,12 @@ export function AuthProvider({ children }) {
     if (!sess) { setProfile(null); return; }
     const { data } = await supabase.from('profiles').select('id, full_name, role, language').eq('id', sess.user.id).maybeSingle();
     setProfile(data || null);
+    identifyUser(data);
     if (data?.language) {
       setLangLocal(data.language);
       try { localStorage.setItem('oleyn_lang', data.language); } catch { /* ignore */ }
     }
+    return data;
   }
 
   useEffect(() => {
@@ -37,11 +40,15 @@ export function AuthProvider({ children }) {
 
   async function signIn(email, password) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (!error) await loadProfile(data.session);
+    if (!error) {
+      const p = await loadProfile(data.session);
+      track('user_logged_in', { role: p?.role, language: p?.language });
+    }
     return { error };
   }
 
   async function signOut() {
+    resetAnalytics();
     await supabase.auth.signOut();
     setProfile(null);
   }

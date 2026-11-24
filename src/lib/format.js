@@ -31,3 +31,17 @@ export function dhakaDatePlus(days = 0) {
   const d = new Date(Date.now() + 6 * 3600e3 + days * 86400e3);
   return d.toISOString().slice(0, 10);
 }
+
+// "2026-10" style month helpers for HR, payroll and accounts (Dhaka time).
+export function monthNow(offset = 0) {
+  const d = new Date(Date.now() + 6 * 3600e3);
+  d.setUTCDate(1);
+  d.setUTCMonth(d.getUTCMonth() + offset);
+  return d.toISOString().slice(0, 7);
+}
+
+export function monthRange(ym) {
+  const [y, m] = ym.split('-').map(Number);
+  const next = m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, '0')}`;
+  return { first: `${ym}-01`, start: new Date(`${ym}-01T00:00:00+06:00`).toISOString(), end: new Date(`${next}-01T00:00:00+06:00`).toISOString(), nextFirst: `${next}-01` };
+}
