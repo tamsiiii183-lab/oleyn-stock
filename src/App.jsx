@@ -30,6 +30,8 @@ import Production from './pages/Production.jsx';
 import ApiInfo from './pages/ApiInfo.jsx';
 import RequestReview from './pages/RequestReview.jsx';
 import Godowns from './pages/Godowns.jsx';
+import Supervision from './pages/Supervision.jsx';
+import Feedback from './pages/Feedback.jsx';
 
 function Layout() {
   const { session, profile, loading } = useAuth();
@@ -79,7 +81,9 @@ export default function App() {
         <Route path="/accounts" element={ownerOnly(<Accounts />)} />
         <Route path="/production" element={ownerOnly(<Production />)} />
         <Route path="/api-info" element={ownerOnly(<ApiInfo />)} />
-        <Route path="/more" element={ownerOnly(<More />)} />
+        <Route path="/more" element={<More />} />
+        <Route path="/supervision" element={ownerOnly(<Supervision />)} />
+        <Route path="/feedback" element={<Feedback />} />
         <Route path="/godowns" element={<Godowns />} />
         <Route path="/soon/:module" element={<Soon />} />
         <Route path="*" element={<Navigate to="/" replace />} />
