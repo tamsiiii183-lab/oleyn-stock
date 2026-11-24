@@ -163,7 +163,7 @@ create or replace function pg_temp.oleyn_seed_checks() returns table (test text,
 language sql as $$
   -- Row counts match spec section 15.
   select 'Seed: 20 products, 8 customers, 15 sales, 9 payments, 2 purchases, 3 adjustments',
-    (select count(*) from products where sku not like 'ZZTEST%') = 20 and (select count(*) from customers) = 8
+    (select count(*) from products where sku not like 'ZZTEST%' and sku not like 'RG-%') = 20 and (select count(*) from customers) = 8
     and (select count(*) from sales_invoices) = 15 and (select count(*) from customer_ledger where entry_type = 'payment') = 9
     and (select count(*) from purchases) = 2 and (select count(*) from stock_movements where source_type = 'adjustment') = 3,
     concat_ws(', ', (select count(*) from products), (select count(*) from customers), (select count(*) from sales_invoices),
