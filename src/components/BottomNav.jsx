@@ -1,6 +1,5 @@
-// Bottom bar (56 px, icons with labels). Owner: Home, Sell, Customers, Products, More. Salesperson: first four.
+// Bottom bar (56 px, icons with labels): Home, Sell, Customers, Products, More (both roles; More holds Shrobon and Feedback).
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '../lib/auth.jsx';
 import { useI18n } from '../lib/i18n.js';
 
 const icons = {
@@ -25,7 +24,6 @@ function Item({ to, label, icon }) {
 }
 
 export default function BottomNav() {
-  const { role } = useAuth();
   const { t } = useI18n();
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex h-14 max-w-[480px] border-t border-cloud bg-white print:hidden">
@@ -33,7 +31,7 @@ export default function BottomNav() {
       <Item to="/sell" label={t('sell')} icon="sell" />
       <Item to="/customers" label={t('customers')} icon="customers" />
       <Item to="/products" label={t('products')} icon="products" />
-      {role === 'owner' && <Item to="/more" label={t('more')} icon="more" />}
+      <Item to="/more" label={t('more')} icon="more" />
     </nav>
   );
 }
