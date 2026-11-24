@@ -6,9 +6,10 @@ import { useAuth } from '../lib/auth.jsx';
 import { useI18n } from '../lib/i18n.js';
 import { money, dateTime, startOfDhakaDay, localName } from '../lib/format.js';
 import Card from '../components/Card.jsx';
+import Button from '../components/Button.jsx';
 
 export default function SalesHome() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { t, lang } = useI18n();
   const [rows, setRows] = useState(null);
 
@@ -50,6 +51,7 @@ export default function SalesHome() {
           ))}
         </ul>
       </Card>
+      <Button variant="secondary" onClick={signOut}>{t('logout')}</Button>
     </div>
   );
 }
