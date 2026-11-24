@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase.js';
 import { useI18n } from '../lib/i18n.js';
 import { errorText } from '../lib/errors.js';
 import Button from './Button.jsx';
+import { track } from '../lib/analytics.js';
 
 const blank = { sku: '', barcode: '', name: '', name_bn: '', unit: 'pcs', sale_price: '', low_stock_at: '10', cost: '' };
 
@@ -33,6 +34,7 @@ export default function ProductForm({ product, onSaved, onCancel }) {
     }
     setBusy(false);
     if (res.error) { setError(errorText(t, res.error)); return; }
+    if (!product) track('product_created', { has_barcode: Boolean(row.barcode) });
     onSaved(res.data.id, !product);
   }
 

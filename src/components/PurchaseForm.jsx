@@ -11,6 +11,7 @@ import { useToast } from './Toast.jsx';
 import Banner from './Banner.jsx';
 import Button from './Button.jsx';
 import Card from './Card.jsx';
+import { track } from '../lib/analytics.js';
 
 const cell = 'min-h-[44px] w-full rounded-lg border bg-white px-2';
 
@@ -47,6 +48,7 @@ export default function PurchaseForm({ draftKey, initial, photo, source = 'manua
     });
     setBusy(false);
     if (err) { if (isNetworkError(err)) setNetFail(true); else setError(errorText(t, err)); return; }
+    if (!data.duplicate) track('purchase_saved', { source, lines: d.lines.length });
     clearDraft(draftKey);
     toast(`${data.purchase_no} · ${t('purchase_saved')}`);
     onSaved?.(data, { lines: d.lines.length, fieldsEdited });
