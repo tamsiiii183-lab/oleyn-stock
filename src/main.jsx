@@ -7,6 +7,9 @@ import { I18nProvider } from './lib/i18n.js';
 import { AuthProvider } from './lib/auth.jsx';
 import { ToastProvider } from './components/Toast.jsx';
 import './index.css';
+import { initAnalytics } from './lib/analytics.js';
+
+initAnalytics();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

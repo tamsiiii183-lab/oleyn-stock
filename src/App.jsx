@@ -22,6 +22,12 @@ import CustomerDetail from './pages/CustomerDetail.jsx';
 import RecordPayment from './pages/RecordPayment.jsx';
 import NewPurchase from './pages/NewPurchase.jsx';
 import MemoReview from './pages/MemoReview.jsx';
+import HR from './pages/HR.jsx';
+import Employee from './pages/Employee.jsx';
+import Payroll from './pages/Payroll.jsx';
+import Accounts from './pages/Accounts.jsx';
+import Production from './pages/Production.jsx';
+import ApiInfo from './pages/ApiInfo.jsx';
 
 function Layout() {
   const { session, profile, loading } = useAuth();
@@ -64,8 +70,12 @@ export default function App() {
         <Route path="/purchase/new" element={ownerOnly(<NewPurchase />)} />
         <Route path="/purchase/review/:extractionId" element={ownerOnly(<MemoReview />)} />
         <Route path="/adjust" element={ownerOnly(<AdjustStock />)} />
-        <Route path="/payroll" element={ownerOnly(<InProgress title={t('payroll')} />)} />
-        <Route path="/api-info" element={ownerOnly(<InProgress title={t('api_info')} />)} />
+        <Route path="/payroll" element={ownerOnly(<Payroll />)} />
+        <Route path="/hr" element={ownerOnly(<HR />)} />
+        <Route path="/hr/:id" element={ownerOnly(<Employee />)} />
+        <Route path="/accounts" element={ownerOnly(<Accounts />)} />
+        <Route path="/production" element={ownerOnly(<Production />)} />
+        <Route path="/api-info" element={ownerOnly(<ApiInfo />)} />
         <Route path="/more" element={ownerOnly(<More />)} />
         <Route path="/soon/:module" element={<Soon />} />
         <Route path="*" element={<Navigate to="/" replace />} />
