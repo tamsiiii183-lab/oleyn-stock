@@ -28,12 +28,21 @@ React 18 + Vite + Tailwind + React Router · Supabase (Postgres, Auth, Row Level
 - **Cancel, never delete:** cancelling an invoice adds reversing stock and due entries (fixes v0 bug FB-011).
 - **Supabase keys:** uses the new publishable/secret keys (legacy anon/service_role keys retire in early 2027) under the same variable names.
 
+## Beyond the spec: light ERP modules for Rahman Group (Owner only)
+- **HR:** staff by factory, raises with salary history, salary advances, leave balances (casual 10 / sick 14 / annual 18 days a year, assumed), "increment due" tick (12+ months since last raise, +5% expected).
+- **Payroll:** attendance, worker overtime (2 x hourly rate), Eid-ul-Fitr / Eid-ul-Adha / year-end bonus, salary sheet, approve, payslips.
+- **Accounts:** month cash in/out, receivables and simple P&L calculated from sales, payments, purchases and payroll.
+- **Production:** bill of materials and production runs through the stock ledger (Rahman Snack Box demo).
+- **Godowns & branches:** stock per location from one shared ledger, transfers between Main Godown, Narayanganj Branch and Dhaka Shop.
+- **Stock receiving by Salesperson:** AI memo scan with prices removed by the server; the Owner approves with costs before stock goes up.
+
 ## Database setup (Supabase SQL Editor, in order)
 1. `supabase/01_schema.sql` – tables, sequences, views
 2. `supabase/02_security.sql` – Row Level Security rules
 3. `supabase/03_functions.sql` – business rules (`create_sale`, `record_payment`, `create_purchase`, `adjust_stock`, `cancel_invoice`)
 4. Create the two demo logins in Authentication → Users (auto-confirm), then `supabase/04_seed.sql`
 5. `supabase/06_tests.sql` – automatic checks; every row must pass
+6. `supabase/05_payroll.sql`, `07_modules.sql`, `09_purchase_requests.sql`, `10_hr_extras_godowns.sql` – modules (each ends with its own checks); `08_module_tests.sql` – payroll and production checks
 
 ## Folders
 - `src/` the app (pages, components, helpers, `i18n/` English and Bangla labels)
