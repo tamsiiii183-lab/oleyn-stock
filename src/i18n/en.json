@@ -166,5 +166,17 @@
   "trx_needed": "Needed for bKash and bank.",
   "choose": "Choose…",
   "invoice_cancelled": "Invoice cancelled.",
-  "walk_in_cash": "Walk-in (cash only)"
+  "walk_in_cash": "Walk-in (cash only)",
+  "supplier": "Supplier",
+  "unit_cost": "Unit cost",
+  "line_total": "Line total",
+  "memo_photo": "Memo photo",
+  "warnings": "Please check",
+  "purchase_saved": "Purchase saved. Stock updated.",
+  "reading_memo": "AI is reading the memo… (up to 20 seconds)",
+  "add_line": "+ Add line",
+  "purchase_total": "Purchase total",
+  "need_products": "Choose a product for every line.",
+  "memo_date": "Memo date",
+  "read_as": "Memo says"
 }
