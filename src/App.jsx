@@ -20,6 +20,8 @@ import Invoice from './pages/Invoice.jsx';
 import Customers from './pages/Customers.jsx';
 import CustomerDetail from './pages/CustomerDetail.jsx';
 import RecordPayment from './pages/RecordPayment.jsx';
+import NewPurchase from './pages/NewPurchase.jsx';
+import MemoReview from './pages/MemoReview.jsx';
 
 function Layout() {
   const { session, profile, loading } = useAuth();
@@ -59,8 +61,8 @@ export default function App() {
         <Route path="/products" element={<Products />} />
         <Route path="/products/:id" element={<ProductDetail />} />
         <Route path="/invoices/:id" element={<Invoice />} />
-        <Route path="/purchase/new" element={ownerOnly(<InProgress title={t('new_purchase')} />)} />
-        <Route path="/purchase/review/:extractionId" element={ownerOnly(<InProgress title={t('scan_memo')} />)} />
+        <Route path="/purchase/new" element={ownerOnly(<NewPurchase />)} />
+        <Route path="/purchase/review/:extractionId" element={ownerOnly(<MemoReview />)} />
         <Route path="/adjust" element={ownerOnly(<AdjustStock />)} />
         <Route path="/payroll" element={ownerOnly(<InProgress title={t('payroll')} />)} />
         <Route path="/api-info" element={ownerOnly(<InProgress title={t('api_info')} />)} />
