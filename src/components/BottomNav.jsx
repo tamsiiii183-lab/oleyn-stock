@@ -28,7 +28,7 @@ export default function BottomNav() {
   const { role } = useAuth();
   const { t } = useI18n();
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex h-14 max-w-[480px] border-t border-cloud bg-white">
+    <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex h-14 max-w-[480px] border-t border-cloud bg-white print:hidden">
       <Item to="/" label={t('home')} icon="home" />
       <Item to="/sell" label={t('sell')} icon="sell" />
       <Item to="/customers" label={t('customers')} icon="customers" />
