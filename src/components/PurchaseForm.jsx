@@ -1,4 +1,5 @@
-// Purchase form used for both "Enter by hand" and the AI review screen. Lines flagged by the AI get a Signal Orange
+// Purchase form used for "Enter by hand", the AI review screen, a Salesperson's stock request (no prices: mode 'request')
+// and the Owner's approval of such a request (mode 'approve'). Lines flagged by the AI get a Signal Orange
 // outline and a "Check this" chip. Saving calls create_purchase with safe save (same client_ref on retry).
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -15,7 +16,8 @@ import { track } from '../lib/analytics.js';
 
 const cell = 'min-h-[44px] w-full rounded-lg border bg-white px-2';
 
-export default function PurchaseForm({ draftKey, initial, photo, source = 'manual', extractionId = null, warnings = [], onSaved }) {
+export default function PurchaseForm({ draftKey, initial, photo, source = 'manual', extractionId = null, warnings = [], onSaved, mode = 'purchase', requestId = null }) {
+  const showCosts = mode !== 'request';
   const { t, lang } = useI18n();
   const toast = useToast();
   const navigate = useNavigate();
@@ -32,7 +34,7 @@ export default function PurchaseForm({ draftKey, initial, photo, source = 'manua
   const setLine = (i, patch) => setD({ ...d, lines: d.lines.map((l, j) => (j === i ? { ...l, ...patch } : l)) });
 
   const total = round2(d.lines.reduce((s, l) => s + round2(Number(l.qty || 0) * Number(l.unit_cost || 0)), 0));
-  const allHaveProducts = d.lines.length > 0 && d.lines.every((l) => l.product_id && Number(l.qty) > 0 && l.unit_cost !== '' && l.unit_cost != null);
+  const allHaveProducts = d.lines.length > 0 && d.lines.every((l) => l.product_id && Number(l.qty) > 0 && (!showCosts || (l.unit_cost !== '' && l.unit_cost != null)));
   // Fields the Owner changed compared with what the AI suggested (sent as p_fields_edited for the accuracy metric).
   const fieldsEdited = d.lines.reduce((n, l, i) => {
     const o = original[i] || {};
@@ -41,15 +43,32 @@ export default function PurchaseForm({ draftKey, initial, photo, source = 'manua
 
   async function save() {
     setBusy(true); setError(''); setNetFail(false);
-    const { data, error: err } = await supabase.rpc('create_purchase', {
-      p_client_ref: d.client_ref, p_supplier_name: d.supplier_name || null, p_source: source,
-      p_lines: d.lines.map((l) => ({ product_id: l.product_id, qty: Number(l.qty), unit_cost: Number(l.unit_cost) })),
-      p_ai_extraction_id: extractionId, p_fields_edited: source === 'ai' ? fieldsEdited : null,
-    });
+    const costLines = d.lines.map((l) => ({ product_id: l.product_id, qty: Number(l.qty), unit_cost: Number(l.unit_cost) }));
+    const { data, error: err } = mode === 'request'
+      ? await supabase.rpc('submit_purchase_request', {
+        p_client_ref: d.client_ref, p_supplier_name: d.supplier_name || null, p_ai_extraction_id: extractionId,
+        p_lines: d.lines.map((l) => ({ product_id: l.product_id, qty: Number(l.qty), item_name: l.item_name || null, ai_index: l.ai_index ?? null })),
+      })
+      : mode === 'approve'
+        ? await supabase.rpc('approve_purchase_request', {
+          p_request_id: requestId, p_client_ref: d.client_ref, p_supplier_name: d.supplier_name || null, p_lines: costLines,
+          p_fields_edited: source === 'ai' ? fieldsEdited : null,
+        })
+        : await supabase.rpc('create_purchase', {
+          p_client_ref: d.client_ref, p_supplier_name: d.supplier_name || null, p_source: source, p_lines: costLines,
+          p_ai_extraction_id: extractionId, p_fields_edited: source === 'ai' ? fieldsEdited : null,
+        });
     setBusy(false);
     if (err) { if (isNetworkError(err)) setNetFail(true); else setError(errorText(t, err)); return; }
-    if (!data.duplicate) track('purchase_saved', { source, lines: d.lines.length });
     clearDraft(draftKey);
+    if (mode === 'request') {
+      if (!data.duplicate) track('purchase_request_sent', { source, lines: d.lines.length });
+      toast(`${data.request_no} · ${t('request_sent')}`);
+      onSaved?.(data);
+      navigate('/');
+      return;
+    }
+    if (!data.duplicate) track('purchase_saved', { source, lines: d.lines.length, via_request: mode === 'approve' });
     toast(`${data.purchase_no} · ${t('purchase_saved')}`);
     onSaved?.(data, { lines: d.lines.length, fieldsEdited });
     navigate(d.lines.length === 1 ? `/products/${d.lines[0].product_id}` : '/products');
@@ -82,19 +101,20 @@ export default function PurchaseForm({ draftKey, initial, photo, source = 'manua
                 <option value="">{t('choose_product')}</option>
                 {products.map((p) => <option key={p.id} value={p.id}>{localName(p, lang)} ({p.sku})</option>)}
               </select>
-              <div className="grid grid-cols-3 items-center gap-2">
+              <div className={`grid items-center gap-2 ${showCosts ? 'grid-cols-3' : 'grid-cols-1'}`}>
                 <input className={`${cell} ${b}`} type="number" min="0" inputMode="decimal" placeholder={t('quantity')} aria-label={t('quantity')}
                   value={l.qty ?? ''} onChange={(e) => setLine(i, { qty: e.target.value })} />
-                <input className={`${cell} ${b}`} type="number" min="0" inputMode="decimal" placeholder={t('unit_cost')} aria-label={t('unit_cost')}
-                  value={l.unit_cost ?? ''} onChange={(e) => setLine(i, { unit_cost: e.target.value })} />
-                <span className="text-right font-semibold">{money(round2(Number(l.qty || 0) * Number(l.unit_cost || 0)), lang)}</span>
+                {showCosts && <input className={`${cell} ${b}`} type="number" min="0" inputMode="decimal" placeholder={t('unit_cost')} aria-label={t('unit_cost')}
+                  value={l.unit_cost ?? ''} onChange={(e) => setLine(i, { unit_cost: e.target.value })} />}
+                {showCosts && <span className="text-right font-semibold">{money(round2(Number(l.qty || 0) * Number(l.unit_cost || 0)), lang)}</span>}
               </div>
               <button type="button" className="text-sm text-slate underline" onClick={() => setD({ ...d, lines: d.lines.filter((_, j) => j !== i) })}>{t('remove')}</button>
             </div>
           );
         })}
         <Button variant="secondary" type="button" onClick={() => setD({ ...d, lines: [...d.lines, { product_id: '', qty: '', unit_cost: '' }] })}>{t('add_line')}</Button>
-        <div className="flex justify-between text-xl font-bold text-brand-dark"><span>{t('purchase_total')}</span><span>{money(total, lang)}</span></div>
+        {showCosts ? <div className="flex justify-between text-xl font-bold text-brand-dark"><span>{t('purchase_total')}</span><span>{money(total, lang)}</span></div>
+          : <p className="text-sm text-slate">🔒 {t('costs_hidden')}</p>}
         {!allHaveProducts && d.lines.length > 0 && <p className="text-sm font-semibold text-accent-text">⚠ {t('need_products')}</p>}
         {source === 'ai' && (
           <label className="flex min-h-[48px] items-center gap-3 font-semibold">
@@ -103,7 +123,7 @@ export default function PurchaseForm({ draftKey, initial, photo, source = 'manua
         )}
       </Card>
       {error && <p role="alert" className="rounded-xl bg-accent-tint p-3 font-semibold text-accent-ink">⚠ {error}</p>}
-      <Button onClick={save} disabled={busy || !allHaveProducts || !checked}>{busy ? t('saving') : t('save')}</Button>
+      <Button onClick={save} disabled={busy || !allHaveProducts || !checked}>{busy ? t('saving') : t(mode === 'request' ? 'send_to_owner' : mode === 'approve' ? 'approve_add_stock' : 'save')}</Button>
     </div>
   );
 }
