@@ -15,6 +15,11 @@ import InProgress from './pages/InProgress.jsx';
 import Products from './pages/Products.jsx';
 import ProductDetail from './pages/ProductDetail.jsx';
 import AdjustStock from './pages/AdjustStock.jsx';
+import NewSale from './pages/NewSale.jsx';
+import Invoice from './pages/Invoice.jsx';
+import Customers from './pages/Customers.jsx';
+import CustomerDetail from './pages/CustomerDetail.jsx';
+import RecordPayment from './pages/RecordPayment.jsx';
 
 function Layout() {
   const { session, profile, loading } = useAuth();
@@ -47,13 +52,13 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/sell" element={<InProgress title={t('new_sale')} />} />
-        <Route path="/customers" element={<InProgress title={t('customers')} />} />
-        <Route path="/customers/:id" element={<InProgress title={t('customers')} />} />
-        <Route path="/pay" element={<InProgress title={t('record_payment')} />} />
+        <Route path="/sell" element={<NewSale />} />
+        <Route path="/customers" element={<Customers />} />
+        <Route path="/customers/:id" element={<CustomerDetail />} />
+        <Route path="/pay" element={<RecordPayment />} />
         <Route path="/products" element={<Products />} />
         <Route path="/products/:id" element={<ProductDetail />} />
-        <Route path="/invoices/:id" element={<InProgress title={t('sell')} />} />
+        <Route path="/invoices/:id" element={<Invoice />} />
         <Route path="/purchase/new" element={ownerOnly(<InProgress title={t('new_purchase')} />)} />
         <Route path="/purchase/review/:extractionId" element={ownerOnly(<InProgress title={t('scan_memo')} />)} />
         <Route path="/adjust" element={ownerOnly(<AdjustStock />)} />
