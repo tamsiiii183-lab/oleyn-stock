@@ -1,4 +1,4 @@
-// AI: supplier memo photo -> suggested purchase lines (Owner only). Calls Gemini with a 20 s timeout, checks the
+// AI: supplier memo photo -> suggested purchase lines. Owner gets prices; a Salesperson gets items + quantities only. Calls Gemini with a 20 s timeout, checks the
 // maths, matches products, and logs every attempt in ai_extractions. Nothing is saved as a purchase here.
 import { createClient } from '@supabase/supabase-js';
 
@@ -61,13 +61,14 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' });
   const admin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
 
-  // 1. Who is calling? Only a logged-in Owner may use the AI (and spend the API quota).
+  // 1. Who is calling? Logged-in Owner or Salesperson only. A Salesperson never receives prices (required item 1).
   const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
   const { data: userData } = token ? await admin.auth.getUser(token) : { data: null };
   const user = userData?.user;
   if (!user) return res.status(401).json({ error: 'not_authenticated' });
   const { data: profile } = await admin.from('profiles').select('role').eq('id', user.id).maybeSingle();
-  if (profile?.role !== 'owner') return res.status(403).json({ error: 'not_allowed' });
+  if (!['owner', 'salesperson'].includes(profile?.role)) return res.status(403).json({ error: 'not_allowed' });
+  const isOwner = profile.role === 'owner';
 
   const { image_base64: image, mime_type: mime = 'image/jpeg' } = req.body || {};
   if (!image) return res.status(400).json({ error: 'image_required' });
@@ -136,6 +137,9 @@ export default async function handler(req, res) {
   }
 
   const id = await log('ok', parsed, lines.length * 5);
+  // The raw AI output (with prices) stays in ai_extractions, which only the Owner can read.
+  const safeLines = isOwner ? lines : lines.map(({ unit_cost, line_total, ...rest }) => rest);
   return res.status(200).json({ extraction_id: id, supplier_name: parsed.supplier_name || null, memo_date: parsed.memo_date || null,
-    lines, memo_total: parsed.memo_total ?? null, warnings, latency_ms: Date.now() - started, model });
+    lines: safeLines, memo_total: isOwner ? parsed.memo_total ?? null : null, warnings: isOwner ? warnings : [],
+    latency_ms: Date.now() - started, model, prices_hidden: !isOwner });
 }
