@@ -25,3 +25,9 @@ export function startOfDhakaDay() {
 export function localName(row, lang) {
   return (lang === 'bn' && row?.name_bn) || row?.name || '';
 }
+
+// A date N days after today in Dhaka, as YYYY-MM-DD (for due dates).
+export function dhakaDatePlus(days = 0) {
+  const d = new Date(Date.now() + 6 * 3600e3 + days * 86400e3);
+  return d.toISOString().slice(0, 10);
+}
