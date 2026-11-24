@@ -28,6 +28,8 @@ import Payroll from './pages/Payroll.jsx';
 import Accounts from './pages/Accounts.jsx';
 import Production from './pages/Production.jsx';
 import ApiInfo from './pages/ApiInfo.jsx';
+import RequestReview from './pages/RequestReview.jsx';
+import Godowns from './pages/Godowns.jsx';
 
 function Layout() {
   const { session, profile, loading } = useAuth();
@@ -67,8 +69,9 @@ export default function App() {
         <Route path="/products" element={<Products />} />
         <Route path="/products/:id" element={<ProductDetail />} />
         <Route path="/invoices/:id" element={<Invoice />} />
-        <Route path="/purchase/new" element={ownerOnly(<NewPurchase />)} />
-        <Route path="/purchase/review/:extractionId" element={ownerOnly(<MemoReview />)} />
+        <Route path="/purchase/new" element={<NewPurchase />} />
+        <Route path="/purchase/review/:extractionId" element={<MemoReview />} />
+        <Route path="/purchase/request/:id" element={ownerOnly(<RequestReview />)} />
         <Route path="/adjust" element={ownerOnly(<AdjustStock />)} />
         <Route path="/payroll" element={ownerOnly(<Payroll />)} />
         <Route path="/hr" element={ownerOnly(<HR />)} />
@@ -77,6 +80,7 @@ export default function App() {
         <Route path="/production" element={ownerOnly(<Production />)} />
         <Route path="/api-info" element={ownerOnly(<ApiInfo />)} />
         <Route path="/more" element={ownerOnly(<More />)} />
+        <Route path="/godowns" element={<Godowns />} />
         <Route path="/soon/:module" element={<Soon />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
