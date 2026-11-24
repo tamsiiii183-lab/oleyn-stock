@@ -1,0 +1,8 @@
+/* Tailwind styles, page colours, 16 px body text, and the Bangla font when Bangla is chosen. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { font-size: 16px; }
+body { @apply bg-brand-tint text-ink font-sans antialiased; }
+html.lang-bn body { @apply font-bn; }
