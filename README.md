@@ -3,7 +3,7 @@
 Inventory, sales and credit (dues) app for small and medium wholesalers in Bangladesh, built for low-cost Android phones on 3G.
 Stock and customer dues are **ledgers** (every change is a row with who, when, why and how much), never a single number that gets overwritten.
 
-- **Live URL:** _(added after the first Vercel deploy)_
+- **Live URL:** https://oleyn-stock.vercel.app
 - **Demo logins**
 
   | Role | Email | Password |
@@ -15,7 +15,7 @@ Stock and customer dues are **ledgers** (every change is a row with who, when, w
 - **Public stock API** (demo key `oleyn-demo-api-key-2026`):
 
   ```text
-  curl -H "x-api-key: oleyn-demo-api-key-2026" "https://<your-app>.vercel.app/api/v1/stock?sku=PRAN-MANGO-250"
+  curl -H "x-api-key: oleyn-demo-api-key-2026" "https://oleyn-stock.vercel.app/api/v1/stock?sku=PRAN-MANGO-250"
   ```
 
 ## Stack
