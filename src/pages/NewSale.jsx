@@ -124,7 +124,7 @@ export default function NewSale() {
         <label className="block text-sm font-semibold">{t('paid_now')} ৳
           <input className={input} type="number" min="0" inputMode="decimal" value={draft.paid_now} placeholder={String(total)} onChange={(e) => update({ paid_now: e.target.value })} />
         </label>
-        <div className={`flex justify-between text-xl font-bold ${due > 0 ? 'text-accent-text' : 'text-brand-dark'}`}><span>{t('due')}</span><span>{money(due, lang)}</span></div>
+        <div className={`flex justify-between text-xl font-bold ${due > 0 ? 'text-accent-text' : 'text-brand-dark'}`}><span>{t('due')}</span><span>{money(Math.max(due, 0), lang)}</span></div>
         {due > 0 && !draft.customer_id && <p className="text-sm font-semibold text-accent-text">⚠ {t('err_CUSTOMER_REQUIRED_FOR_CREDIT')}</p>}
         {(paid < 0 || paid > total) && <p className="text-sm font-semibold text-accent-text">⚠ {t('err_PAID_EXCEEDS_TOTAL')}</p>}
         {due > 0 && draft.customer_id && (
