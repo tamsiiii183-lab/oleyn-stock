@@ -26,7 +26,7 @@ Everything for the Oleyn AI Product Manager take-home, in the order of the assig
 **6. Part 3 documents, dashboard links and wireframes** — [Part 3 — Product Adoption (PDF, 9 pages)](docs/Part3-Product-Adoption.pdf)
 - 3.1 Experiment readout (p. 1) · 3.2 Onboarding and activation (p. 2), with the first-session wireframes "First 5 minutes" (p. 3)
 - 3.3 Go-to-market plan (p. 4) · 3.4 Dashboard (p. 6) · 3.5 Feedback loop (p. 8) · 3.6 User-facing material (p. 9)
-- Dashboards: [Pilot account health](https://claude.ai/artifact/9qy19mpY2KDpDhYKtxUsMu) (3.4) · [PostHog "Oleyn activation"](https://us.posthog.com/project/764855/dashboard/2407854) (live product events)
+- Dashboards: [Pilot account health](https://claude.ai/artifact/9qy19mpY2KDpDhYKtxUsMu) (3.4) · [PostHog "Oleyn activation"](https://us.posthog.com/shared/5i6E6SFE2sPRIJmd_CkZQWEd34TBwA) (live product events, public link)
 
 **7. Demo video (3–5 minutes)** — *(add link)*
 
@@ -85,7 +85,7 @@ The phone shrinks the photo (max 1600 px, JPEG 0.7) and sends it to `/api/extrac
 
 Events, sent only after a successful save, each with role, language and app_version: `user_logged_in`, `product_created`, `invoice_saved` (payment_type, lines, total_bdt, **is_first_real_invoice** = activation, oversell_override, used_barcode), `payment_recorded`, `purchase_saved`, `ai_memo_extracted`, `ai_fallback_used`, `stock_adjusted` (+ `language_switched`, `coming_soon_interest`, `purchase_request_sent`, `feedback_sent`).
 
-Dashboard **"Oleyn activation"**: funnel logged in → first real invoice → payment recorded; invoices per day by payment type; AI read vs fallback per day. Link: https://us.posthog.com/project/764855/dashboard/2407854 *(PostHog dashboards are private; evaluators need an invite or a shared link)*.
+Dashboard **"Oleyn activation"**: funnel logged in → first real invoice → payment recorded; invoices per day by payment type; AI read vs fallback per day. Public link (no login needed): https://us.posthog.com/shared/5i6E6SFE2sPRIJmd_CkZQWEd34TBwA
 
 ## Beyond the spec: light ERP modules for Rahman Group (Owner only)
 
