@@ -4,6 +4,34 @@
 
 Oleyn Stock is an inventory, sales and credit app for small and medium wholesalers in Bangladesh who today keep part of the business in a paper *khata*, WhatsApp and Excel. It runs on a low-cost Android phone on 3G, in English or Bangla. Stock and customer dues are **ledgers** — every change is a row with who, when, why and how much — so numbers are always traceable. Version 1 also starts the phased ERP for the launch partner Rahman Group with light HR, payroll, accounts, production and multi-godown modules.
 
+## Submission checklist
+
+Everything for the Oleyn AI Product Manager take-home, in the order of the assignment checklist. The PDFs open in the browser; page numbers show where each section starts.
+
+**1. Part 1 documents (1.1–1.7)** — [Part 1 — Product Management (PDF, 11 pages)](docs/Part1-Product-Management.pdf)
+- 1.1 Discovery synthesis (p. 1) · 1.2 Competitive scan (p. 4) · 1.3 PRD for v1 (p. 4) · 1.4 Prioritisation (p. 7)
+- 1.5 Roadmap and success metrics (p. 10) · 1.6 Reply to the CEO (p. 11) · 1.7 User research plan (p. 11)
+- 1.1 analysis spreadsheet / notebook: *(add link)*
+
+**2. Live MVP and demo logins** — https://oleyn-stock.vercel.app · Owner and Salesperson logins are in [Demo logins](#demo-logins) below
+
+**3. Source code** — this repository: `src/` (React app), `api/` (Vercel server functions), `supabase/` (database schema, rules and tests)
+
+**4. Part 2 documents (2.2–2.8)** — [Part 2 — Development (PDF, 12 pages)](docs/Part2-Development.pdf)
+- 2.2 Architecture (p. 1) · 2.3 Data model (p. 2) · 2.4 API specification (p. 4) · 2.5 User stories (p. 6)
+- 2.6 AI feature design note (p. 8) · 2.7 QA report (p. 9, full version in [docs/QA.md](docs/QA.md)) · 2.8 Sprint plan (p. 11)
+
+**5. Experiment analysis notebook or SQL** — *(add link)* · The readout is 3.1 in the Part 3 PDF (p. 1)
+
+**6. Part 3 documents, dashboard links and wireframes** — [Part 3 — Product Adoption (PDF, 9 pages)](docs/Part3-Product-Adoption.pdf)
+- 3.1 Experiment readout (p. 1) · 3.2 Onboarding and activation (p. 2), with the first-session wireframes "First 5 minutes" (p. 3)
+- 3.3 Go-to-market plan (p. 4) · 3.4 Dashboard (p. 6) · 3.5 Feedback loop (p. 8) · 3.6 User-facing material (p. 9)
+- Dashboards: [Pilot account health](https://claude.ai/artifact/9qy19mpY2KDpDhYKtxUsMu) (3.4) · [PostHog "Oleyn activation"](https://us.posthog.com/project/764855/dashboard/2407854) (live product events)
+
+**7. Demo video (3–5 minutes)** — *(add link)*
+
+**8. Decision log and AI usage log** — [Part 4 — Decision Log and AI Usage Log (PDF, 2 pages)](docs/Part4-Decision-and-AI-Log.pdf): 4.1 Decision log (p. 1) · 4.2 AI usage log (p. 2)
+
 ## Demo logins
 
 | Role | Email | Password |
@@ -87,14 +115,6 @@ Dashboard **"Oleyn activation"**: funnel logged in → first real invoice → pa
 5. `12_final_checks.sql` — final QA: 22 rule tests + 10 live-data integrity checks (32 / 32 passed on 25 Nov 2026)
 
 QA report with test cases T01–T20 and bugs: [`docs/QA.md`](docs/QA.md)
-
-## Assignment documents
-
-- Part 1 — Product discovery and strategy: *(add link)*
-- Part 2 — Architecture, data model, API spec, user stories, AI design note, QA (`docs/QA.md`), sprint plan: *(add links)*
-- Part 3 — Metrics and dashboard: *(add link)*
-- Part 4: *(add link)*
-- Demo video (3–5 min): *(add link)*
 
 ## AI usage note
 
